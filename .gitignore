@@ -1,0 +1,77 @@
+# -------------------------
+# Python
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+.uv/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# -------------------------
+# Django (library-safe)
+# -------------------------
+
+# Ignore Django local DBs if you do dev testing
+*.sqlite3
+*.db
+
+# Ignore collected static (but keep source static)
+staticfiles/
+
+# Ignore local media (not in reusable libs)
+media/
+
+# Local dev settings / secrets
+*.env
+.env.*
+.envrc
+
+# -------------------------
+# Cache / logs
+# -------------------------
+*.log
+*.cache
+*.mo
+*.pot
+.pytest_cache/
+
+# -------------------------
+# Coverage
+# -------------------------
+.coverage
+coverage.xml
+htmlcov/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+
+# VSCode
+.vscode/
+
+# PyCharm / JetBrains
+.idea/
+*.iml
+
+# -------------------------
+# OS files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Docker (optional)
+# -------------------------
+.docker/
+docker_env/
+

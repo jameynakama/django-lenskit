@@ -1,0 +1,31 @@
+[tool.uv]
+# This root is a workspace, not an installable package
+package = false
+
+[tool.uv.workspace]
+# Add more packages here later, e.g. django-lenskit-core, etc.
+members = [
+    "packages/django_lenskit_admin",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [
+    ".venv",
+    ".uv",
+    "build",
+    "dist",
+]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+ignore_missing_imports = true
+strict = true
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = [
+    "packages",
+]

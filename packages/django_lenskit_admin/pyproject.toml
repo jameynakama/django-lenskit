@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-lenskit-admin"
+version = "0.1.0"
+description = "Admin-focused tools for the Django LensKit suite."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Jamey Nakama", email = "nakamajamey@gmail.com" }
+]
+
+keywords = [
+    "django",
+    "admin",
+    "tools",
+    "fixtures",
+    "audit",
+    "introspection",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "Django>=4.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-django",
+    "ruff",
+    "mypy",
+    "django-stubs",
+    "django-extensions",
+]
+
+[tool.setuptools]
+# Package code lives directly under lenskit_admin/
+package-dir = { "" = "." }
+
+[tool.setuptools.packages.find]
+include = ["django_lenskit_admin*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"lenskit_admin" = [
+    "templates/**/*.html",
+    "static/**/*",
+]
+
