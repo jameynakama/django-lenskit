@@ -32,13 +32,21 @@ class Command(BaseCommand):  # type: ignore[misc]
             action="store_true",
             help="Include third-party apps (override first-party filter)",
         )
+        parser.add_argument(
+            "--first-party-only",
+            dest="first_party_only",
+            action="store_true",
+            help="Only audit first-party apps (overrides settings)",
+        )
 
     def handle(self, *args: str, **options: Any) -> None:
         apps_arg: Optional[str] = options.get("apps")
         app_labels: Optional[list[str]] = apps_arg.split(",") if apps_arg else None
         all_apps: bool = bool(options.get("all_apps"))
-        # first_party_only defaults from settings; CLI --all-apps disables it explicitly
-        issues = run_admin_audit(app_labels, first_party_only=not all_apps)
+        first_party_only_flag: bool = bool(options.get("first_party_only"))
+        # precedence: --first-party-only > --all-apps > settings default
+        first_party_only = True if first_party_only_flag else (False if all_apps else None)
+        issues = run_admin_audit(app_labels, first_party_only=first_party_only)
 
         # Print text summary
         for model_key, model_issues in group_issues_for_text(issues):

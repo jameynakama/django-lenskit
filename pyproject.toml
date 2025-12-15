@@ -30,3 +30,4 @@ addopts = "-ra"
 testpaths = [
     "packages",
 ]
+DJANGO_SETTINGS_MODULE = "django_lenskit_audit.tests.settings"

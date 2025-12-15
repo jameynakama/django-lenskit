@@ -7,6 +7,14 @@ dependencies = [
     "django>=4.2",
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-django>=4.7",
+    "pytest-mock>=3.12",
+    "pytest-cov>=4.0",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
