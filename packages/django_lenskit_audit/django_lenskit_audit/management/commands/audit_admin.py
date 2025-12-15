@@ -26,11 +26,19 @@ class Command(BaseCommand):  # type: ignore[misc]
             dest="apps",
             help="Comma-separated list of app labels to scope the audit",
         )
+        parser.add_argument(
+            "--all-apps",
+            dest="all_apps",
+            action="store_true",
+            help="Include third-party apps (override first-party filter)",
+        )
 
     def handle(self, *args: str, **options: Any) -> None:
         apps_arg: Optional[str] = options.get("apps")
         app_labels: Optional[list[str]] = apps_arg.split(",") if apps_arg else None
-        issues = run_admin_audit(app_labels)
+        all_apps: bool = bool(options.get("all_apps"))
+        # first_party_only defaults from settings; CLI --all-apps disables it explicitly
+        issues = run_admin_audit(app_labels, first_party_only=not all_apps)
 
         # Print text summary
         for model_key, model_issues in group_issues_for_text(issues):
