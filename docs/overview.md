@@ -1,4 +1,4 @@
-# django-admin-health-kit — Project Overview
+# django-admin-lenskit — Project Overview
 
 A modular Django app providing enhanced tooling for Django Admin, similar to `django-extensions`, but specifically focused on:
 
@@ -20,22 +20,22 @@ Each module is optional and enabled through settings.
 ## Project Structure (Proposed)
 
 ```zsh
-admin_health_kit/
+lenskit/
     __init__.py
     apps.py
     settings.py
-    fixtures_export/
+    django_lenskit_fixtures_export/
         exporter.py
         admin.py
         views.py
         urls.py
-    audit/
+    django_lenskit_audit/
         rules.py
         runner.py
         issues.py
         management/commands/audit_admin.py
-        templates/admin_health_kit/audit_report.html
-    ai_query/
+        templates/admin_lenskit/audit_report.html
+    django_lenskit_ai_query/
         dsl.py
         parser.py
         executor.py
@@ -47,7 +47,7 @@ admin_health_kit/
 
 ## Modules Summary
 
-### 1. Fixture Exporter
+### 1. [Fixture Exporter](fixture-export.md)
 
 - Admin action: "Export as fixture…"
 - Traversal:
@@ -62,7 +62,7 @@ admin_health_kit/
 
 ---
 
-### 2. Admin Audit Tool
+### 2. [Admin Audit Tool](admin-audit.md)
 
 Entry point: `python manage.py audit_admin`
 
@@ -84,7 +84,7 @@ Outputs:
 
 ---
 
-### 3. AI Query Builder (Read-Only)
+### 3. [AI Query Builder (Read-Only)](ai-query-builder.md)
 
 - Natural language → **strict JSON DSL** describing a read-only ORM query.
 - Server validates DSL (model, fields, lookups, limits).
@@ -101,7 +101,7 @@ Used for debugging, introspection, and analytics inside admin.
 ## Settings Example
 
 ```python
-ADMIN_HEALTH_KIT = {
+ADMIN_LENSKIT = {
     "fixtures": {
         "enabled": True,
         "default_object_limit": 5000,
@@ -130,7 +130,7 @@ ADMIN_HEALTH_KIT = {
 
 ## Vision
 
-**django-admin-health-kit** gives Django teams a toolkit for:
+**django-admin-lenskit** gives Django teams a toolkit for:
 
 - cleaner admin UIs,
 - safer data handling,

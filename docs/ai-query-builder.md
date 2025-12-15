@@ -1,4 +1,4 @@
-# Admin Health Kit — AI Query Builder (Read-Only) Specification
+# Admin Lenskit — AI Query Builder (Read-Only) Specification
 
 ## Goal
 
@@ -16,7 +16,7 @@ Absolutely **no write operations** are permitted.
 
 ## 1. Workflow
 
-1. User navigates to `/admin/admin-health-kit/ai-query/`.
+1. User navigates to `/admin/admin-lenskit/ai-query/`.
 2. User types a natural-language query:
    - "Show me the 100 most recent users from Oregon."
 3. Backend:
@@ -79,7 +79,7 @@ The backend must validate:
 
 ### Model
 
-- Model must be in `ADMIN_HEALTH_KIT["ai_query"]["allowed_models"]`.
+- Model must be in `ADMIN_LENSKIT["ai_query"]["allowed_models"]`.
 
 ### Fields
 
@@ -167,7 +167,7 @@ The admin view shows:
 ## 6. Settings
 
 ```python
-ADMIN_HEALTH_KIT = {
+ADMIN_LENSKIT = {
     "ai_query": {
         "enabled": True,
         "allowed_models": [

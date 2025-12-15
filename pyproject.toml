@@ -6,6 +6,7 @@ package = false
 # Add more packages here later, e.g. django-lenskit-core, etc.
 members = [
     "packages/django_lenskit_admin",
+    "packages/django_lenskit_audit",
 ]
 
 [tool.ruff]
