@@ -21,7 +21,13 @@ class ExportConfig:
 
 
 class TooManyObjects(Exception):
-    pass
+    def __init__(self, limit: int, collected: int, *, at_least: bool = False):
+        self.limit = limit
+        self.collected = collected
+        self.at_least = at_least
+        exceed_by = max(collected - limit, 0)
+        collected_text = f"at least {collected}" if at_least else f"{collected}"
+        super().__init__(f"Snapshot exceeded safety limit of {limit} objects (collected {collected_text}, exceeded by {exceed_by}).")
 
 
 def _default_object_limit() -> int:
@@ -91,15 +97,63 @@ def build_closure(
         key = (obj._meta.label_lower, obj.pk)
         if key in seen:
             continue
+        # Compute next relations first so the probe can include this node's frontier
+        next_relations = list(_iter_related_objects(obj, include_reverse))
         seen.add(key)
         ordered.append(obj)
         if len(seen) > object_limit:
-            raise TooManyObjects(f"Snapshot exceeded safety limit of {object_limit} objects")
+            # Probe from both the current queue and this node's immediate frontier
+            probe_limit = _excess_probe_limit()
+            pending = deque(list(next_relations) + list(queue))
+            extra_count, truncated = _probe_excess(pending, include_reverse, seen, probe_limit)
+            raise TooManyObjects(
+                limit=object_limit,
+                collected=len(seen) + extra_count,
+                at_least=truncated,
+            )
 
-        for rel_obj in _iter_related_objects(obj, include_reverse):
+        for rel_obj in next_relations:
             queue.append(rel_obj)
 
     return ordered
+
+
+def _excess_probe_limit() -> int:
+    cfg = getattr(settings, "ADMIN_LENSKIT", {}) or {}
+    fixtures = (cfg.get("fixtures") or {}) if isinstance(cfg, dict) else {}
+    default_probe = 2000
+    try:
+        return int(fixtures.get("excess_probe_limit", default_probe))
+    except Exception:
+        return default_probe
+
+
+def _probe_excess(
+    queue: deque[models.Model],
+    include_reverse: bool,
+    seen: Set[Tuple[str, object]],
+    probe_limit: int,
+) -> tuple[int, bool]:
+    # Explore from current boundary without mutating main traversal,
+    # counting additional unique objects reachable up to probe_limit.
+    pending: deque[models.Model] = deque(queue)
+    local_seen: Set[Tuple[str, object]] = set(seen)
+    extra = 0
+    truncated = False
+    while pending and extra < probe_limit:
+        obj = pending.popleft()
+        for rel in _iter_related_objects(obj, include_reverse):
+            key = (rel._meta.label_lower, rel.pk)
+            if key in local_seen:
+                continue
+            local_seen.add(key)
+            extra += 1
+            if extra >= probe_limit:
+                break
+            pending.append(rel)
+    if pending:
+        truncated = True
+    return extra, truncated
 
 
 def serialize_instances(instances: Iterable[models.Model], *, fmt: str) -> str:
