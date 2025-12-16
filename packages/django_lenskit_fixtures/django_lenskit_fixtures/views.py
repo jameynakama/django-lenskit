@@ -39,11 +39,10 @@ def export_config_view(request: HttpRequest) -> HttpResponse:
     if model is None:
         return HttpResponseBadRequest("Invalid model parameter")
 
-    try:
-        ids: list[str] = [s for s in pks_csv.split(",") if s]
-        pks: list[Any] = [int(s) for s in ids]
-    except ValueError:
+    ids: list[str] = [s.strip() for s in pks_csv.split(",") if s.strip()]
+    if not ids:
         return HttpResponseBadRequest("Invalid pks parameter")
+    pks: list[Any] = ids
 
     default_limit = request.GET.get("limit")
     form_initial = {
