@@ -122,4 +122,3 @@ def export_action(modeladmin, request: HttpRequest, queryset):
     return HttpResponseRedirect(f"{url}?model={label}&pks={ids}")
 
 export_action.short_description = "Export as fixture…"  # type: ignore[attr-defined]
-export_action.allowed_permissions = ("view",)  # type: ignore[attr-defined]
