@@ -6,9 +6,11 @@ from typing import Iterable, Iterator, Optional, Set, Tuple, Type
 
 from django.conf import settings
 from django.core import serializers
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import OneToOneField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
+from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel, OneToOneRel
 
 
 @dataclass(frozen=True)
@@ -45,8 +47,12 @@ def _iter_related_objects(
     obj: models.Model, include_reverse: bool
 ) -> Iterator[models.Model]:
     for field in obj._meta.get_fields():
-        if isinstance(field, ForeignKey):
-            target = getattr(obj, field.name, None)
+        # Forward relations
+        if isinstance(field, (ForeignKey, OneToOneField)):
+            try:
+                target = getattr(obj, field.name, None)
+            except ObjectDoesNotExist:
+                target = None
             if target is not None:
                 yield target
         elif isinstance(field, ManyToManyField):
@@ -55,7 +61,15 @@ def _iter_related_objects(
                 yield target
 
         if include_reverse:
-            if isinstance(field, ManyToOneRel):
+            # Reverse relations
+            if isinstance(field, OneToOneRel):
+                try:
+                    related_obj = getattr(obj, field.get_accessor_name())
+                except ObjectDoesNotExist:
+                    related_obj = None
+                if related_obj is not None:
+                    yield related_obj
+            elif isinstance(field, ManyToOneRel):
                 rel_manager = getattr(obj, field.get_accessor_name())
                 for target in rel_manager.all():
                     yield target
