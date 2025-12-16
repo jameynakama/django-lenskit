@@ -7,6 +7,7 @@ package = false
 members = [
     "packages/django_lenskit_admin",
     "packages/django_lenskit_audit",
+    "packages/django_lenskit_fixtures",
 ]
 
 [tool.ruff]

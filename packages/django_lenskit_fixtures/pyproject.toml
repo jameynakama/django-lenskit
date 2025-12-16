@@ -1,0 +1,23 @@
+[project]
+name = "django-lenskit-fixtures"
+version = "0.1.0"
+description = "Fixture exporter for Django Admin (part of django-admin-lenskit)"
+requires-python = ">=3.10"
+dependencies = [
+    "django>=4.2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-django>=4.7",
+    "pytest-mock>=3.12",
+    "pytest-cov>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = true

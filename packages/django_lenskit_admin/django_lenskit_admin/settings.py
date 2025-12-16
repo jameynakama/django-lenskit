@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_lenskit_audit',
+    'django_lenskit_fixtures',
 ]
 
 MIDDLEWARE = [
