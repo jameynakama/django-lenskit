@@ -32,20 +32,23 @@ class TooManyObjects(Exception):
 
 def _default_object_limit() -> int:
     cfg = getattr(settings, "ADMIN_LENSKIT", {}) or {}
-    fixtures = (cfg.get("audit") or {}) if False else None  # keep mypy happy
-    fixtures = (cfg.get("fixtures") or {}) if isinstance(cfg, dict) else {}
-    limit = 5000
-    if isinstance(fixtures, dict):
-        limit = int(fixtures.get("default_object_limit", limit))
-    return limit
+    fixtures_cfg = cfg.get("fixtures") if isinstance(cfg, dict) else None
+    default_limit = 5000
+    if isinstance(fixtures_cfg, dict):
+        try:
+            return int(fixtures_cfg.get("default_object_limit", default_limit))
+        except Exception:
+            return default_limit
+    return default_limit
 
 
 def fixtures_enabled() -> bool:
     cfg = getattr(settings, "ADMIN_LENSKIT", {}) or {}
-    fixtures = (cfg.get("fixtures") or {}) if isinstance(cfg, dict) else {}
-    enabled_value = fixtures.get("enabled")
-    if enabled_value is not None:
-        return bool(enabled_value)
+    fixtures_cfg = cfg.get("fixtures") if isinstance(cfg, dict) else None
+    if isinstance(fixtures_cfg, dict):
+        enabled_value = fixtures_cfg.get("enabled")
+        if enabled_value is not None:
+            return bool(enabled_value)
     return bool(getattr(settings, "DEBUG", False))
 
 
