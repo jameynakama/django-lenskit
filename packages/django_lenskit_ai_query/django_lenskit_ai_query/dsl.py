@@ -49,7 +49,11 @@ def _get_model(model_label: str) -> type[Model]:
 
 def _model_allowed(model_label: str) -> bool:
     ai = _get_ai_config()
-    allowed = ai.get("allowed_models") or []
+    allowed = ai.get("allowed_models")
+    # Support wildcard to allow all models
+    if allowed == "*" or (isinstance(allowed, list) and "*" in allowed):
+        return True
+    allowed = allowed or []
     return model_label in allowed
 
 

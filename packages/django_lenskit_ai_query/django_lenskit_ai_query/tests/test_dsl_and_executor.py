@@ -45,3 +45,9 @@ def test_limit_too_large_rejected(settings) -> None:
     settings.ADMIN_LENSKIT["ai_query"]["max_limit"] = 5
     with pytest.raises(DslValidationError):
         validate_dsl({"model": "ai_test.Book", "limit": 10})
+
+def test_allowed_models_wildcard(settings) -> None:
+    settings.ADMIN_LENSKIT["ai_query"]["allowed_models"] = "*"
+    # Should validate even though model isn't explicitly listed
+    model, spec = validate_dsl({"model": "ai_test.Book", "fields": ["id"], "limit": 1})
+    assert spec["model"] == "ai_test.Book"
