@@ -4,6 +4,7 @@ django-lenskit-fixtures
 Relation-aware fixture exporter for Django Admin with safety caps.
 
 What it does
+
 - Builds a closure of required objects to ensure loaddata won’t fail on missing FK/M2M targets.
 - Traversal:
   - Always follows forward FKs and forward M2Ms.
@@ -14,6 +15,7 @@ What it does
 - Output: JSON (default) or YAML (requires PyYAML).
 
 Install
+
 - Local (editable):
   - pip install -e .
   - or uv pip install -e .
@@ -21,6 +23,7 @@ Install
   - pip install "git+https://github.com/jameynakama/lenskit@main#subdirectory=packages/django_lenskit_fixtures"
 
 Setup
+
 - Add to INSTALLED_APPS and include URLs:
   INSTALLED_APPS += ["django_lenskit_fixtures"]
   from django.urls import include, path
@@ -40,6 +43,7 @@ Setup
   }
 
 Use
+
 - In the admin changelist:
   1) Select records
   2) Choose action “Export as fixture…”
@@ -49,11 +53,13 @@ Use
 - The exporter deduplicates objects and includes through-table rows for M2Ms.
 
 Production notes
+
 - By default, export is enabled in DEBUG.
   - In production, set ADMIN_LENSKIT['fixtures']['enabled'] to True to allow exports.
   - Keep object caps conservative in prod.
 
 Tests
+
 - Install extras:
   uv pip install -e '.[test]'
 - Run:
