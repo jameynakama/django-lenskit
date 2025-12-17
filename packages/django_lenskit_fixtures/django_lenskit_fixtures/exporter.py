@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Optional, Set, Tuple, Type
+from typing import Iterable, Iterator, Optional, Set, Tuple
 
 from django.conf import settings
 from django.core import serializers
@@ -27,7 +27,9 @@ class TooManyObjects(Exception):
         self.at_least = at_least
         exceed_by = max(collected - limit, 0)
         collected_text = f"at least {collected}" if at_least else f"{collected}"
-        super().__init__(f"Snapshot exceeded safety limit of {limit} objects (collected {collected_text}, exceeded by {exceed_by}).")
+        super().__init__(
+            f"Snapshot exceeded safety limit of {limit} objects (collected {collected_text}, exceeded by {exceed_by})."
+        )
 
 
 def _default_object_limit() -> int:
@@ -52,9 +54,7 @@ def fixtures_enabled() -> bool:
     return bool(getattr(settings, "DEBUG", False))
 
 
-def _iter_related_objects(
-    obj: models.Model, include_reverse: bool
-) -> Iterator[models.Model]:
+def _iter_related_objects(obj: models.Model, include_reverse: bool) -> Iterator[models.Model]:
     for field in obj._meta.get_fields():
         # Forward relations
         if isinstance(field, (ForeignKey, OneToOneField)):

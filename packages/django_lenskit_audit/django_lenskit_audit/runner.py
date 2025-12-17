@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Optional, Type
+from typing import Iterable, Optional
 
-from django.conf import settings
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.contrib import admin
-from django.db import models
 
 from .issues import Issue
 from .rules import ADMIN_LEVEL_RULES, MODEL_LEVEL_RULES
@@ -17,7 +16,7 @@ def _get_audit_config() -> dict:
     cfg: dict = {}
     root = getattr(settings, "ADMIN_LENSKIT", None)
     if isinstance(root, dict):
-        audit_cfg = ((root.get("audit") or {}).get("config") or {})
+        audit_cfg = (root.get("audit") or {}).get("config") or {}
         if isinstance(audit_cfg, dict):
             cfg.update(audit_cfg)
     return cfg
@@ -46,7 +45,9 @@ def _is_first_party_app_label(app_label: str, extra_apps: set[str]) -> bool:
     return any(str(app_path).startswith(str(root)) for root in roots)
 
 
-def run_admin_audit(apps: Optional[Iterable[str]] = None, *, first_party_only: Optional[bool] = None) -> list[Issue]:
+def run_admin_audit(
+    apps: Optional[Iterable[str]] = None, *, first_party_only: Optional[bool] = None
+) -> list[Issue]:
     apps_scope: Optional[set[str]] = set(apps) if apps else None
     cfg = _get_audit_config()
     if first_party_only is None:

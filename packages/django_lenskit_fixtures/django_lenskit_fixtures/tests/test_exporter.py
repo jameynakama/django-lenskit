@@ -6,6 +6,7 @@ import re
 import pytest
 from django.apps import apps as django_apps
 from django.test import override_settings
+
 from django_lenskit_fixtures.exporter import TooManyObjects, export_queryset
 
 

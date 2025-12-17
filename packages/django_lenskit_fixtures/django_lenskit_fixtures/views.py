@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence, Type
+from typing import Any
 
-from django.contrib import admin
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest, HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
@@ -119,5 +118,6 @@ def export_action(modeladmin, request: HttpRequest, queryset):
     label = f"{model._meta.app_label}.{model._meta.model_name}"
     url = reverse("django_lenskit_fixtures:export_config")
     return HttpResponseRedirect(f"{url}?model={label}&pks={ids}")
+
 
 export_action.short_description = "Export as fixture…"  # type: ignore[attr-defined]

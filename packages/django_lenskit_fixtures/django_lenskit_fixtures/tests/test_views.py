@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import json
-import uuid
-
 import pytest
+from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.test import Client
 from django.urls import reverse
-from django.apps import apps as django_apps
 
 from django_lenskit_fixtures.views import export_action
 
@@ -50,6 +47,7 @@ def test_export_config_view_disabled_returns_400() -> None:
     model_label = f"{Root._meta.app_label}.{Root._meta.model_name}"
     url = reverse("django_lenskit_fixtures:export_config")
     from django.test import override_settings as _ov
+
     with _ov(ADMIN_LENSKIT={"fixtures": {"enabled": False}}):
         assert client.get(url, {"model": model_label, "pks": str(r.pk)}).status_code == 400
 

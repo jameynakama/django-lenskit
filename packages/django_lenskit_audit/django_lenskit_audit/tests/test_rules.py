@@ -4,10 +4,7 @@ from django.apps import apps as django_apps
 from django.contrib.admin import ModelAdmin
 from django.test import override_settings
 
-from django_lenskit_audit.issues import Issue
 from django_lenskit_audit.rules import (
-    ADMIN_LEVEL_RULES,
-    MODEL_LEVEL_RULES,
     MissingBasicsRule,
     ModelNotRegisteredRule,
 )
@@ -34,6 +31,7 @@ def test_model_not_registered_rule_respects_ignore_list() -> None:
     rule = ModelNotRegisteredRule()
     issues = rule.check(model, None, None)  # type: ignore[arg-type]
     assert issues == []
+
 
 def test_missing_basics_rule_ignores_when_no_admin_class() -> None:
     model = django_apps.get_model("testapp", "TempModel")

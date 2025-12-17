@@ -12,6 +12,5 @@ def test_models_str() -> None:
 def test_import_urls_and_wsgi_executes_module_code() -> None:
     import django_lenskit_fixtures.tests.urls as urls  # noqa: F401
     import django_lenskit_fixtures.tests.wsgi as wsgi  # noqa: F401
+
     assert hasattr(wsgi, "application")
-
-

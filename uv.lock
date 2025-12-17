@@ -13,6 +13,9 @@ members = [
     "django-lenskit-fixtures",
 ]
 
+[manifest.dependency-groups]
+dev = [{ name = "ruff", specifier = ">=0.14.8" }]
+
 [[package]]
 name = "asgiref"
 version = "3.11.0"

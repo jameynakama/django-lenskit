@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-from django.test import override_settings
 from django.core.management import call_command
+from django.test import override_settings
 
 from django_lenskit_audit.runner import group_issues_for_text, run_admin_audit
 

@@ -32,3 +32,8 @@ testpaths = [
     "packages",
 ]
 DJANGO_SETTINGS_MODULE = "django_lenskit_audit.tests.settings"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.8",
+]
