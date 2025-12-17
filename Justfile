@@ -11,6 +11,7 @@ default:
 venv:
   python3 -m venv .venv
   .venv/bin/python -m pip install -U pip
+  just deps-uv
 
 # Install deps with pip (editable) — pass extra args via `args:=...` if needed
 # Example: just deps-pip args="-e 'packages/django_lenskit_audit[test]'"
@@ -39,28 +40,20 @@ fmt:
 # Examples:
 #  - just test-audit
 #  - just test-audit args="-q -k rule"
-test-audit args="-q --cov=django_lenskit_audit --cov-report=term-missing":
-  .venv/bin/python -m pytest {{args}} packages/django_lenskit_audit
+test-audit args="--cov=django_lenskit_audit --cov-report=term-missing":
+  .venv/bin/python -m pytest {{args}} --ds=django_lenskit_audit.tests.settings packages/django_lenskit_audit
 
 # Run fixtures tests — pass through extra pytest flags via `args:=...`
 # Examples:
 #  - just test-fixtures
 #  - just test-fixtures args="-q -k export"
-test-fixtures args="-q --cov=django_lenskit_fixtures --cov-report=term-missing":
+test-fixtures args="--cov=django_lenskit_fixtures --cov-report=term-missing":
   .venv/bin/python -m pytest {{args}} --ds=django_lenskit_fixtures.tests.settings packages/django_lenskit_fixtures
 
 # Run both test suites (add extra pytest flags via `args:=...`)
-test-all args="-q":
-  just test-audit args="{{args}}"
-  just test-fixtures args="{{args}}"
-
-# Sample project: run audit command in the demo admin project
-# Pass through manage.py args via `args:=...`
-# Examples:
-#  - just audit-admin
-#  - just audit-admin args="--first-party-only --html=admin_audit.html"
-audit-admin args="":
-  .venv/bin/python packages/django_lenskit_admin/manage.py audit_admin {{args}}
+test-all args="":
+  just test-audit {{args}}
+  just test-fixtures {{args}}
 
 # Clean typical bytecode and cache folders
 clean:
