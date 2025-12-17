@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .dsl import DslValidationError, validate_dsl
 from .executor import build_queryset, pseudo_code
+from .llm import LlmNotConfigured, generate_dsl_from_nl, is_configured
 
 
 def _ai_cfg() -> dict:
@@ -71,3 +72,29 @@ def api(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"dsl": spec, "orm": pseudo_code(model, spec), "rows": rows})
     except (json.JSONDecodeError, DslValidationError) as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@csrf_exempt
+@staff_member_required
+def generate_api(request: HttpRequest) -> JsonResponse:
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+    if not _enabled():
+        return JsonResponse({"error": "AI query is disabled"}, status=403)
+    if _require_superuser() and not request.user.is_superuser:
+        return JsonResponse({"error": "Superuser required"}, status=403)
+    data = json.loads(request.body.decode("utf-8")) if request.body else {}
+    nl = data.get("query") if isinstance(data, dict) else None
+    if not nl or not isinstance(nl, str):
+        return JsonResponse({"error": "Missing 'query' string"}, status=400)
+    try:
+        dsl_obj = generate_dsl_from_nl(nl)
+        # Validate before returning
+        model, spec = validate_dsl(dsl_obj)
+        return JsonResponse({"dsl": spec})
+    except LlmNotConfigured as e:
+        return JsonResponse({"error": str(e)}, status=501)
+    except DslValidationError as e:
+        return JsonResponse({"error": f"Invalid DSL: {e}"}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"Generation failed: {e}"}, status=500)

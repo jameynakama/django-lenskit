@@ -36,5 +36,6 @@ DJANGO_SETTINGS_MODULE = "django_lenskit_audit.tests.settings"
 
 [dependency-groups]
 dev = [
+    "python-dotenv>=1.2.1",
     "ruff>=0.14.8",
 ]

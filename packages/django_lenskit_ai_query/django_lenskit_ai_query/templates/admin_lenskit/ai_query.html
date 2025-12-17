@@ -33,6 +33,33 @@
         <button type="submit">Run</button>
       </div>
     </form>
+    <hr />
+    <h2>Natural language</h2>
+    <form method="post" action="{% url 'django_lenskit_ai_query:generate' %}" onsubmit="return false;">
+      <label for="nl">Your query</label>
+      <textarea id="nl" name="nl" placeholder="Show me the 10 most recent books with 'python' in the title"></textarea>
+      <div style="margin-top: 0.75rem;">
+        <button id="gen-btn">Generate DSL</button>
+      </div>
+    </form>
+    <script>
+      const btn = document.getElementById('gen-btn');
+      btn?.addEventListener('click', async () => {
+        const q = (document.getElementById('nl') as HTMLTextAreaElement).value;
+        if (!q) return;
+        const resp = await fetch("{% url 'django_lenskit_ai_query:generate' %}", {
+          method: "POST",
+          headers: {"Content-Type": "application/json", "X-CSRFToken": (document.querySelector('input[name=csrfmiddlewaretoken]') as HTMLInputElement).value},
+          body: JSON.stringify({query: q})
+        });
+        const data = await resp.json();
+        if (data.dsl) {
+          (document.getElementById('dsl') as HTMLTextAreaElement).value = JSON.stringify(data.dsl, null, 2);
+        } else if (data.error) {
+          alert(data.error);
+        }
+      });
+    </script>
 
     {% if orm %}
       <h2>ORM</h2>
