@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_lenskit_audit",
     "django_lenskit_fixtures",
+    "django_lenskit_ai_query",
 ]
 
 MIDDLEWARE = [

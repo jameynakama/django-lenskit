@@ -21,4 +21,5 @@ from django.urls import include, path
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("admin/lenskit/", include("django_lenskit_fixtures.urls")),
+    path("admin/lenskit/", include("django_lenskit_ai_query.urls")),
 ]

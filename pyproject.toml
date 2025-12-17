@@ -8,6 +8,7 @@ members = [
     "packages/django_lenskit_admin",
     "packages/django_lenskit_audit",
     "packages/django_lenskit_fixtures",
+    "packages/django_lenskit_ai_query",
 ]
 
 [tool.ruff]
