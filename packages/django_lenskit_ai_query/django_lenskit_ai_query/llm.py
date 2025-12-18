@@ -18,11 +18,28 @@ def _ai_cfg() -> Dict[str, Any]:
     return ai if isinstance(ai, dict) else {}
 
 
+def _available_model_labels() -> list[str]:
+    from django.apps import apps as django_apps
+
+    models = []
+    for m in django_apps.get_models():
+        models.append(f"{m._meta.app_label}.{m._meta.object_name}")
+    # Filter by allowed_models if set to a list
+    ai = _ai_cfg()
+    allowed = ai.get("allowed_models")
+    if isinstance(allowed, list) and "*" not in allowed:
+        models = [lbl for lbl in models if lbl in allowed]
+    # Keep list manageable
+    return sorted(models)[:200]
+
+
 def is_configured() -> bool:
     return bool(os.getenv("OPENAI_API_KEY"))
 
 
 def _build_system_prompt(schema_text: str) -> str:
+    avail = _available_model_labels()
+    example_label = avail[0] if avail else "auth.User"
     return (
         "You are a helpful assistant that converts natural language into a STRICT JSON DSL for Django ORM (read-only).\n"
         "Rules:\n"
@@ -31,9 +48,12 @@ def _build_system_prompt(schema_text: str) -> str:
         "- Use Django lookups with '__', e.g., title__icontains.\n"
         "- Always include 'limit'.\n"
         "- Never include writes, raw SQL, or unknown keys.\n"
+        "- The 'model' MUST be one of the following available model labels: "
+        + ", ".join(avail)
+        + ".\n"
         f"Schema:\n{schema_text}\n"
         "Example output:\n"
-        '{"model":"app.Model","fields":["id","name"],"filters":{"name__icontains":"foo"},"exclude":{},"order_by":["-id"],"limit":50}'
+        f'{{"model":"{example_label}","fields":["id","name"],"filters":{{"name__icontains":"foo"}},"exclude":{{}},"order_by":["-id"],"limit":50}}'
     )
 
 
@@ -44,9 +64,12 @@ def _schema_from_settings() -> str:
     models_desc = allowed_models if allowed_models else []
     if allowed_models == "*" or (isinstance(allowed_models, list) and "*" in allowed_models):
         models_desc = ["*"]
-    return json.dumps(
-        {"allowed_models": models_desc, "allowed_fields": allowed_fields}, separators=(",", ":")
-    )
+    payload = {
+        "allowed_models": models_desc,
+        "allowed_fields": allowed_fields,
+        "available_models": _available_model_labels(),
+    }
+    return json.dumps(payload, separators=(",", ":"))
 
 
 def _extract_json(s: str) -> Dict[str, Any]:
