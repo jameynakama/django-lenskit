@@ -48,6 +48,18 @@ def ui(request: HttpRequest) -> HttpResponse:
             model, spec = validate_dsl(dsl_obj)
             qs = build_queryset(model, spec)
             rows = list(qs)
+            # Build admin change URLs when pk is present
+            try:
+                app_label = model._meta.app_label
+                model_name = model._meta.model_name
+                change_url_name = f"admin:{app_label}_{model_name}_change"
+                from django.urls import reverse
+                for r in rows:
+                    if "pk" in r:
+                        r["admin_url"] = reverse(change_url_name, args=[r["pk"]])
+            except Exception:
+                # If reverse fails (custom admin site), skip linking gracefully
+                pass
             context["orm"] = pseudo_code(model, spec)
             context["rows"] = rows
         except (json.JSONDecodeError, DslValidationError) as e:

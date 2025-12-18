@@ -51,6 +51,23 @@
           var m = document.cookie && document.cookie.match(/(?:^|;)\s*csrftoken=([^;]+)/);
           return m ? decodeURIComponent(m[1]) : '';
         }
+        // Restore and persist natural language input across page loads
+        var nlElInit = document.getElementById('nl');
+        if (nlElInit) {
+          var saved = localStorage.getItem('lk_ai_nl') || '';
+          if (saved && !nlElInit.value) nlElInit.value = saved;
+          nlElInit.addEventListener('input', function() {
+            localStorage.setItem('lk_ai_nl', nlElInit.value || '');
+          });
+        }
+        // Ensure it's saved before the DSL "Run" form posts
+        var dslElRef = document.getElementById('dsl');
+        if (dslElRef && dslElRef.form) {
+          dslElRef.form.addEventListener('submit', function() {
+            var nlEl = document.getElementById('nl');
+            if (nlEl) localStorage.setItem('lk_ai_nl', nlEl.value || '');
+          });
+        }
         var btn = document.getElementById('gen-btn');
         if (!btn) return;
         btn.addEventListener('click', async function(e) {
@@ -60,6 +77,7 @@
           if (!nlEl || !dslEl) return;
           var q = nlEl.value;
           if (!q) return;
+          localStorage.setItem('lk_ai_nl', q || '');
           try {
             var resp = await fetch("{% url 'django_lenskit_ai_query:generate' %}", {
               method: "POST",
@@ -94,18 +112,24 @@
           {% if rows.0 %}
             <tr>
               {% for k, v in rows.0.items %}
-                <th>{{ k }}</th>
+                {% if k != 'admin_url' %}<th>{{ k }}</th>{% endif %}
               {% endfor %}
             </tr>
           {% endif %}
         </thead>
         <tbody>
           {% for r in rows %}
-          <tr>
-            {% for k, v in r.items %}
-              <td>{{ v }}</td>
-            {% endfor %}
-          </tr>
+            <tr>
+              {% for k, v in r.items %}
+                {% if k != 'admin_url' %}
+                  {% if k == 'pk' and r.admin_url %}
+                    <td><a href="{{ r.admin_url }}">{{ v }}</a></td>
+                  {% else %}
+                    <td>{{ v }}</td>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </tr>
           {% endfor %}
         </tbody>
       </table>
