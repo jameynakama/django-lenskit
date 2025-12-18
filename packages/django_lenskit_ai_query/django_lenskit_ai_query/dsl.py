@@ -64,7 +64,8 @@ def _fields_allowed(model: type[Model], fields: List[str]) -> bool:
     if not allowed_for_model:
         # If not specified, allow any real field path (basic check)
         return True
-    return all(f in allowed_for_model for f in fields)
+    # Always allow 'pk' even if not explicitly listed for convenience
+    return all((f == "pk") or (f in allowed_for_model) for f in fields)
 
 
 def _validate_field_path(model: type[Model], field_path: str) -> None:
@@ -72,6 +73,15 @@ def _validate_field_path(model: type[Model], field_path: str) -> None:
     parts = field_path.split("__")
     cur = model
     for i, part in enumerate(parts):
+        # Special-case the synthetic 'pk' alias
+        if part == "pk":
+            # You cannot traverse beyond pk (e.g., pk__something is handled as lookup, not traversal)
+            if i < len(parts) - 1:
+                # If there are more parts, they should be lookups handled elsewhere; prevent further traversal.
+                # Here we just stop traversing as 'pk' is a terminal concrete field alias.
+                continue
+            # Terminal 'pk' is valid
+            break
         try:
             field = cur._meta.get_field(part)
         except FieldDoesNotExist as e:
