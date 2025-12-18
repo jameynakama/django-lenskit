@@ -40,7 +40,7 @@
       <label for="dsl">JSON DSL</label>
       <textarea id="dsl" name="dsl" placeholder='{"model":"app.Model","fields":["id"],"filters":{},"exclude":{},"order_by":[],"limit":50}'>{{ dsl_text }}</textarea>
       <div style="margin-top: 0.75rem;">
-        <button type="submit">Run</button>
+        <button id="run-btn" type="submit">Run</button>
       </div>
     </form>
     <script>
@@ -74,11 +74,20 @@
           e.preventDefault();
           var nlEl = document.getElementById('nl');
           var dslEl = document.getElementById('dsl');
+          var runBtn = document.getElementById('run-btn');
           if (!nlEl || !dslEl) return;
           var q = nlEl.value;
           if (!q) return;
           localStorage.setItem('lk_ai_nl', q || '');
           try {
+            // simple busy state
+            var prevDsl = dslEl.value;
+            dslEl.value = '';
+            dslEl.placeholder = 'Generating…';
+            if (runBtn) runBtn.disabled = true;
+            btn.disabled = true;
+            var prevBtnText = btn.textContent;
+            btn.textContent = 'Generating…';
             var resp = await fetch("{% url 'django_lenskit_ai_query:generate' %}", {
               method: "POST",
               headers: {
@@ -90,11 +99,21 @@
             var data = await resp.json();
             if (data && data.dsl) {
               dslEl.value = JSON.stringify(data.dsl, null, 2);
+              dslEl.placeholder = '';
+              if (runBtn) runBtn.disabled = false;
             } else {
+              dslEl.value = prevDsl;
+              dslEl.placeholder = '';
               alert((data && data.error) || "Failed to generate DSL");
             }
+            btn.disabled = false;
+            btn.textContent = prevBtnText;
           } catch (err) {
+            dslEl.placeholder = '';
             alert("Error generating DSL: " + err);
+            if (runBtn) runBtn.disabled = false;
+            btn.disabled = false;
+            btn.textContent = 'Generate DSL';
           }
         });
       })();
