@@ -25,21 +25,22 @@
       Allowed models: <code>{{ allowed_models|join:", " }}</code>
     </div>
 
-    <form method="post">
-      {% csrf_token %}
-      <label for="dsl">JSON DSL</label>
-      <textarea id="dsl" name="dsl" placeholder='{"model":"app.Model","fields":["id"],"filters":{},"exclude":{},"order_by":[],"limit":50}'>{{ dsl_text }}</textarea>
-      <div style="margin-top: 0.75rem;">
-        <button type="submit">Run</button>
-      </div>
-    </form>
-    <hr />
     <h2>Natural language</h2>
     <form method="post" action="{% url 'django_lenskit_ai_query:generate' %}" onsubmit="return false;">
       <label for="nl">Your query</label>
       <textarea id="nl" name="nl" placeholder="Show me the 10 most recent books with 'python' in the title"></textarea>
       <div style="margin-top: 0.75rem;">
         <button id="gen-btn">Generate DSL</button>
+      </div>
+    </form>
+    <hr />
+    <h2>JSON DSL (advanced)</h2>
+    <form method="post">
+      {% csrf_token %}
+      <label for="dsl">JSON DSL</label>
+      <textarea id="dsl" name="dsl" placeholder='{"model":"app.Model","fields":["id"],"filters":{},"exclude":{},"order_by":[],"limit":50}'>{{ dsl_text }}</textarea>
+      <div style="margin-top: 0.75rem;">
+        <button type="submit">Run</button>
       </div>
     </form>
     <script>

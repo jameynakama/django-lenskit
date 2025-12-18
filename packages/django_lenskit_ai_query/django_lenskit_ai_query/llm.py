@@ -5,6 +5,7 @@ import os
 import re
 from typing import Any, Dict
 
+from django.apps import apps as django_apps
 from django.conf import settings
 
 
@@ -64,10 +65,32 @@ def _schema_from_settings() -> str:
     models_desc = allowed_models if allowed_models else []
     if allowed_models == "*" or (isinstance(allowed_models, list) and "*" in allowed_models):
         models_desc = ["*"]
+
+    # Include per-model fields to guide the model toward real field names, including inherited ones
+    def _model_fields_map() -> Dict[str, list[str]]:
+        out: Dict[str, list[str]] = {}
+        for m in django_apps.get_models():
+            label = f"{m._meta.app_label}.{m._meta.object_name}"
+            names: list[str] = []
+            for f in m._meta.get_fields():
+                if getattr(f, "auto_created", False) and not getattr(f, "concrete", False):
+                    continue
+                if getattr(f, "one_to_many", False) or (
+                    getattr(f, "many_to_many", False) and getattr(f, "auto_created", False)
+                ):
+                    continue
+                name = getattr(f, "name", None)
+                if name:
+                    names.append(name)
+            names.append("pk")
+            out[label] = sorted(set(names))
+        return out
+
     payload = {
         "allowed_models": models_desc,
         "allowed_fields": allowed_fields,
         "available_models": _available_model_labels(),
+        "model_fields": _model_fields_map(),
     }
     return json.dumps(payload, separators=(",", ":"))
 
