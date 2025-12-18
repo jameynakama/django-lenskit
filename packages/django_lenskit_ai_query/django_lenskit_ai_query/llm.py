@@ -78,7 +78,7 @@ def generate_dsl_from_nl(nl: str) -> Dict[str, Any]:
         raise LlmNotConfigured("OpenAI client not available") from e
 
     client = OpenAI()
-    model_name = _ai_cfg().get("openai_model", "gpt-4o-mini")
+    model_name = _ai_cfg().get("openai_model", "gpt-4-1106-preview")
     sys_prompt = _build_system_prompt(_schema_from_settings())
     user_prompt = f"Natural language request:\n{nl}\n\nReturn ONLY the JSON DSL."
 
