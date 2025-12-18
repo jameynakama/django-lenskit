@@ -60,3 +60,24 @@ Notes
 
 - Rules are intentionally heuristic — hints, not hard failures.
 - You can extend with additional rules in future versions (e.g., N+1 hints).
+
+Future rules (roadmap)
+
+- Coverage/metadata
+  - Unregistered concrete/proxy models; missing `__str__`/`__repr__`; missing/odd `verbose_name(_plural)`; missing `Meta.ordering`.
+- Usability gaps
+  - Trivial `list_display`; missing `search_fields`; missing `list_filter`; missing `ordering`/`date_hierarchy`; no `list_per_page`/`show_full_result_count=False`; audit fields not in `readonly_fields`; inlines without `extra=0`.
+- Performance smells
+  - Related lookups in `list_display` without `list_select_related`; heavy M2M use without `prefetch_related`/`autocomplete_fields`; large FKs without `autocomplete_fields`/`raw_id_fields`; `icontains` on unindexed fields; `date_hierarchy` on non‑indexed field.
+- Safety/correctness
+  - `save_model`/`delete_model`/`get_queryset` override without `super()`; over‑permissive `has_*_permission`; admin actions lacking permission gating or `short_description`; `get_readonly_fields` not checking `obj`.
+- Consistency/duplication
+  - Duplicate admin configs across apps (suggest mixins); conflicting `Meta.ordering` vs `ModelAdmin.ordering`.
+- Security/PII hygiene
+  - PII fields in `list_display`/`search_fields` without explicit allowlist; custom admin views missing CSRF.
+- Indexing hints (advisory)
+  - Filters/search on non‑indexed columns (suggest `db_index=True`/functional index).
+- API ergonomics
+  - Missing `empty_value_display`; `SimpleListFilter` candidates for common ad‑hoc filters.
+- Framework fit/finish
+  - `filter_horizontal/vertical` on huge M2Ms (prefer autocomplete); legacy `raw_id_fields` where `autocomplete_fields` is available.
