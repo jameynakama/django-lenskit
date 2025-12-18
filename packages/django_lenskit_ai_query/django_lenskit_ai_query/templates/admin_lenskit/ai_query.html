@@ -122,8 +122,12 @@
             <tr>
               {% for k, v in r.items %}
                 {% if k != 'admin_url' %}
-                  {% if k == 'pk' and r.admin_url %}
-                    <td><a href="{{ r.admin_url }}">{{ v }}</a></td>
+                  {% if r.admin_url %}
+                    {% if k == 'pk' or k == pk_field %}
+                      <td><a href="{{ r.admin_url }}">{{ v }}</a></td>
+                    {% else %}
+                      <td>{{ v }}</td>
+                    {% endif %}
                   {% else %}
                     <td>{{ v }}</td>
                   {% endif %}

@@ -48,15 +48,25 @@ def ui(request: HttpRequest) -> HttpResponse:
             model, spec = validate_dsl(dsl_obj)
             qs = build_queryset(model, spec)
             rows = list(qs)
-            # Build admin change URLs when pk is present
+            # Build admin change URLs when pk (or concrete pk field) is present
             try:
                 app_label = model._meta.app_label
                 model_name = model._meta.model_name
+                pk_name = model._meta.pk.name
                 change_url_name = f"admin:{app_label}_{model_name}_change"
                 from django.urls import reverse
+                linked = False
                 for r in rows:
+                    pk_val = None
                     if "pk" in r:
-                        r["admin_url"] = reverse(change_url_name, args=[r["pk"]])
+                        pk_val = r["pk"]
+                        context["pk_field"] = "pk"
+                    elif pk_name in r:
+                        pk_val = r[pk_name]
+                        context["pk_field"] = pk_name
+                    if pk_val is not None:
+                        r["admin_url"] = reverse(change_url_name, args=[pk_val])
+                        linked = True
             except Exception:
                 # If reverse fails (custom admin site), skip linking gracefully
                 pass
