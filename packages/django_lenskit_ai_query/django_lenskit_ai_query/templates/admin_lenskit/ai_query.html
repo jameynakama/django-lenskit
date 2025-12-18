@@ -43,22 +43,42 @@
       </div>
     </form>
     <script>
-      const btn = document.getElementById('gen-btn');
-      btn?.addEventListener('click', async () => {
-        const q = (document.getElementById('nl') as HTMLTextAreaElement).value;
-        if (!q) return;
-        const resp = await fetch("{% url 'django_lenskit_ai_query:generate' %}", {
-          method: "POST",
-          headers: {"Content-Type": "application/json", "X-CSRFToken": (document.querySelector('input[name=csrfmiddlewaretoken]') as HTMLInputElement).value},
-          body: JSON.stringify({query: q})
-        });
-        const data = await resp.json();
-        if (data.dsl) {
-          (document.getElementById('dsl') as HTMLTextAreaElement).value = JSON.stringify(data.dsl, null, 2);
-        } else if (data.error) {
-          alert(data.error);
+      (function() {
+        function getCsrfToken() {
+          var el = document.querySelector('input[name=csrfmiddlewaretoken]');
+          if (el && el.value) return el.value;
+          var m = document.cookie && document.cookie.match(/(?:^|;)\s*csrftoken=([^;]+)/);
+          return m ? decodeURIComponent(m[1]) : '';
         }
-      });
+        var btn = document.getElementById('gen-btn');
+        if (!btn) return;
+        btn.addEventListener('click', async function(e) {
+          e.preventDefault();
+          var nlEl = document.getElementById('nl');
+          var dslEl = document.getElementById('dsl');
+          if (!nlEl || !dslEl) return;
+          var q = nlEl.value;
+          if (!q) return;
+          try {
+            var resp = await fetch("{% url 'django_lenskit_ai_query:generate' %}", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCsrfToken()
+              },
+              body: JSON.stringify({ query: q })
+            });
+            var data = await resp.json();
+            if (data && data.dsl) {
+              dslEl.value = JSON.stringify(data.dsl, null, 2);
+            } else {
+              alert((data && data.error) || "Failed to generate DSL");
+            }
+          } catch (err) {
+            alert("Error generating DSL: " + err);
+          }
+        });
+      })();
     </script>
 
     {% if orm %}
