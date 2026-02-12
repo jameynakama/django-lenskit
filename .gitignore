@@ -75,3 +75,8 @@ Thumbs.db
 .docker/
 docker_env/
 
+
+# -------------------------
+# AI
+# -------------------------
+.claude/settings.local.json
